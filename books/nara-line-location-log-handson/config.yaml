@@ -1,0 +1,43 @@
+title: "LINEでまちの記憶アーカイブBotを作ろう - 奈良のまちの記録を集める LINE Bot × GAS ハンズオン"
+summary: |
+  まちで見つけた気になる場所を LINE でワンタップ登録し、GPS で近い場所を
+  検索したり、地図で公式データと見比べたりできる「まちの記憶アーカイブBot」を、
+  LINE Messaging API × Google Apps Script で作る 5 時間のハンズオン資料です。
+  奈良の URBAN DATA CHALLENGE（UDC）コラボ企画の教材です。
+
+  ■ 作るもの
+  ・現在地を送るだけで場所を登録できる LINE Bot
+  ・緯度経度から登録済みの場所を近い順に検索する GPS 検索機能
+  ・ユーザーごとの状態管理と、シートで増やせる質問
+  ・写真アップロード／FlexMessage（登録完了カード）／リッチメニュー／
+    マップ表示（写真・公式データつき）／QRコード（地図の共有）／
+    登録一覧・削除から選べるもくもくタイム
+
+  ■ おすすめしたい人
+  ・LINE Bot は作ったことがあるが、複数ターンの会話（状態管理）は未経験
+  ・GAS でサーバーレスに Bot を作ってみたい
+
+topics: ["gas", "linebot", "googleappsscript", "javascript"]
+published: false
+price: 0
+chapters:
+  - 00-00-document
+  - 00-01-pre-requirements
+  - 01-00-intro
+  - 01-01-line-messaging-api
+  - 02-00-intro
+  - 02-01-receive-location
+  - 02-02-state-management
+  - 02-03-register-from-location
+  - 02-03b-question-sheet
+  - 02-04-gps-search
+  - 03-00-mokumoku-intro
+  - 03-01-photo-upload
+  - 03-02-flex-message
+  - 03-03-rich-menu
+  - 03-04-map-display
+  - 03-06-qr-code
+  - 03-08-list-delete
+  - 04-00-wrapup
+  - 04-01-full-source
+  - 99-faq

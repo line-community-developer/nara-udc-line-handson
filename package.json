@@ -1,0 +1,11 @@
+{
+  "name": "nara-udc-line-handson",
+  "private": true,
+  "scripts": {
+    "preview": "zenn preview",
+    "test": "node gas/test/run.js && node gas/test/chapters.js"
+  },
+  "devDependencies": {
+    "zenn-cli": "0.5.4"
+  }
+}
