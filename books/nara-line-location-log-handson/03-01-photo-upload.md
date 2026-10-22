@@ -13,7 +13,7 @@ sequenceDiagram
     GAS->>You: 写真があれば送ってください（スキップ可）
     You->>GAS: 写真を送る（またはスキップ）
     Note over GAS: 写真は Drive に保存して location に紐づく
-    GAS->>You: 問1. カテゴリは？
+    GAS->>You: 問1. 何がある？
 ```
 
 写真を送らなくても、「スキップ」を押せばこれまでどおり問1に進みます。登録の流れの外で写真を送ったときは、保存だけします。
@@ -57,7 +57,7 @@ function setupPhotoFolder() {
     return;
   }
 
-  var folder = DriveApp.createFolder("位置ログBot 写真");
+  var folder = DriveApp.createFolder("まちの記憶アーカイブ 写真");
   props.setProperty("DRIVE_FOLDER_ID", folder.getId());
   console.log("フォルダを作成しました: " + folder.getUrl());
 }
@@ -69,7 +69,7 @@ function setupPhotoFolder() {
 初回は **Drive へのアクセス許可**を求められます。ここで許可しないと、写真を保存するときにエラーになります。Step1 のデプロイと同じ赤い警告が出ますが、正常です。
 :::
 
-マイドライブに「位置ログBot 写真」フォルダができ、スクリプトプロパティに `DRIVE_FOLDER_ID` が入っていれば準備完了です。2回目以降は「すでに設定済みです」と出るだけなので、何度押しても大丈夫です。
+マイドライブに「まちの記憶アーカイブ 写真」フォルダができ、スクリプトプロパティに `DRIVE_FOLDER_ID` が入っていれば準備完了です。2回目以降は「すでに設定済みです」と出るだけなので、何度押しても大丈夫です。
 
 ## photo シートを足す
 
@@ -98,6 +98,10 @@ function setupPhotoFolder() {
 +  PHOTO: ["送信日時", "ユーザーID", "メッセージID", "ファイル名", "ファイルID", "URL"]
  };
 ```
+
+:::message alert
+`location` シートは 02-01 ですでにできているので、`HEADERS` を変えても見出しは書き足されません（見出しを書くのはシートを作るときだけです）。スプレッドシートの `location` シートを開き、**H1 セルに手で `写真URL` と入力**してください。
+:::
 
 ## 写真を受け取って保存する
 
@@ -174,6 +178,10 @@ function savePhoto(userId, messageId, fileName, fileId, fileUrl) {
 ここからが本題です。「この場所を登録する」を押したあとに、写真を待つ状態を1つ挟みます。`state` の `status` は、これまでの `pending_choice → answering → done` に、`waiting_photo` が加わります。
 
 まず、`写真アップロード.gs` に、写真を促す関数と、`location` シートの H 列に写真 URL を書く関数を足します。`handleImageMessage` は、登録中の写真ならそのまま問1へ進むように書き換えます。
+
+:::message alert
+下のコードにも `handleImageMessage` が入っています。**さっき貼った `handleImageMessage` は消して**、下のコードに置き換えてください。同じ名前の関数が2つあると、どちらが動いているのか分からなくなります。
+:::
 
 ```javascript:写真アップロード.gs
 function askPhoto(replyToken, locationId) {
@@ -319,11 +327,11 @@ function askQuestion(replyToken, locationId, n, prefix) {
    ![LINE のトーク画面。「この場所を登録する」のあとに、Bot から「写真があれば送ってください なければ「スキップ」を押してください」と返り、下に「カメラを開く」「写真を選ぶ」「スキップ」のボタンが出ている](/images/nara-line-location-log-handson/03-01-01-photo-buttons.png =380x)
 
 2. 「カメラを開く」か「写真を選ぶ」を押して写真を送る
-   → 「写真を保存しました！」のあと、「問1. カテゴリは？」が出る
+   → 「写真を保存しました！」のあと、「問1. 何がある？」が出る
 
-   ![LINE のトーク画面。送ったそばの写真のあとに、Bot から「写真を保存しました！ 問1. カテゴリは？」と返り、下に「カフェ」「レストラン」「観光地」「公園」のボタンが並んでいる](/images/nara-line-location-log-handson/03-01-02-photo-saved.png =380x)
+   ![LINE のトーク画面。送ったそばの写真のあとに、Bot から「写真を保存しました！ 問1. 何がある？」と返り、下に「石仏・お地蔵さん」「道標・石碑」「古い町家」「井戸・水路」のボタンが並んでいる](/images/nara-line-location-log-handson/03-01-02-photo-saved.png =380x)
 
-3. Drive の「位置ログBot 写真」フォルダにファイルが増えている
+3. Drive の「まちの記憶アーカイブ 写真」フォルダにファイルが増えている
 
 `photo` シートに写真の行（ファイル名・ファイルID・URL）が、`location` シートの H 列に写真 URL が入っていれば成功です。「スキップ」を押したときは、写真なしで問1に進みます。登録の流れの外で写真を送ると、`photo` シートに残るだけで、返信に Drive の URL が付きます。
 
@@ -346,12 +354,3 @@ function askQuestion(replyToken, locationId, n, prefix) {
 ### 🎖️ フォルダを日付やユーザーごとに分ける
 
 いまは全員の写真を1つのフォルダに入れています。`getFoldersByName(name)` で探して、無ければ `createFolder(name)` で作れば、年月やユーザーごとのサブフォルダに分けられます。
-
-### 🎖️ 画像を挿絵として使う
-
-```
-===
-挿絵prompt
-LINEのトーク画面で、ユーザーが送った風景写真がBotに保存され、Google Driveのフォルダアイコンに矢印で吸い込まれていくような、シンプルでかわいいフラットデザインのイラスト。パステルカラー、文字なし。
-===
-```

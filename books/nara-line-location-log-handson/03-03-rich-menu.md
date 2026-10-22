@@ -32,7 +32,7 @@ sequenceDiagram
 | 地図を見る | 地図（[マップへ表示する](./03-04-map-display)）が開く |
 | 地図を共有 | 「地図を共有」が送られ、地図 URL の QR コードが返ってくる（[QRコードを作る](./03-06-qr-code)） |
 
-画像は、LDGQ の `assets` リポジトリ（`nara-line-location-log-handson/richmenu/richmenu-nara.png`）に置いてあります。コードでは、GitHub 上のこのファイルの URL を `RICH_MENU_IMAGE_URL` に入れ、それを読みに行きます。
+画像は、このハンズオンの素材置き場（GitHub の `LDGQ/assets` リポジトリの `nara-line-location-log-handson/richmenu/richmenu-nara.png`）に置いてあります。自分で用意する必要はありません。コードでは、GitHub 上のこのファイルの URL を `RICH_MENU_IMAGE_URL` に入れ、それを読みに行きます。
 
 :::message
 自分で作った画像を使うときは、どこかに公開して URL で読める状態にし、`RICH_MENU_IMAGE_URL` を差し替えます。コードは PNG として送っているので、画像は PNG・1MB 以下にしておきます（JPEG を使うなら `contentType` を `image/jpeg` に変えます）。高さを変えるときは、`size` と `bounds` の `height` も合わせてください。
@@ -150,7 +150,7 @@ function setDefaultRichMenu(richMenuId) {
 1. 「記録・検索」を押す
    → 位置情報の送信画面が開く
 2. 「地図を見る」を押す
-   → 地図のページが開く（地図は [マップへ表示する](./03-04-map-display) を作ると出ます）
+   → 地図のページが開く（[マップへ表示する](./03-04-map-display) をまだ作っていなければ「スクリプト関数が見つかりません: doGet」と出ます。正常です）
 3. 「地図を共有」を押す
    → 「地図を共有」が送られる（QR コードが返るのは [QRコードを作る](./03-06-qr-code) のあとです）
 

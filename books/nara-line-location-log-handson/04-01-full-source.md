@@ -43,7 +43,7 @@ QrCode.gs
 :::details コード全体を見る
 ```javascript:コード.gs
 /**
- * LINE位置ログBot
+ * まちの記憶アーカイブBot
  * 位置情報は location、ボタンは postback にそのまま残す。
  * 「いま何問目を待っているか」は state にユーザー1人1行で覚える。
  * 質問（question）に全部答えた場所が、数式で submission に並ぶ。
@@ -402,8 +402,8 @@ function clearState(userId) {
 var QUESTION_HEADERS = ["質問", "選択肢1", "選択肢2", "選択肢3", "選択肢4", "選択肢5"];
 
 var SAMPLE_QUESTIONS = [
-  ["カテゴリは？", "カフェ", "レストラン", "観光地", "公園", "その他"],
-  ["また行きたい？", "ぜひ", "たぶん", "もういいかな", "", ""]
+  ["何がある？", "石仏・お地蔵さん", "道標・石碑", "古い町家", "井戸・水路", "その他"],
+  ["どのくらい古そう？", "とても古そう", "少し古そう", "わからない", "", ""]
 ];
 
 function getQuestions() {
@@ -460,6 +460,7 @@ function setupSheets() {
   var answer = ss.getSheetByName(SHEET_NAMES.ANSWER) || ss.insertSheet(SHEET_NAMES.ANSWER);
   answer.getRange("A1").setFormula(ANSWER_FORMULA);
   answer.getRange("H1").setFormula(ANSWER_ERROR_FORMULA);
+  answer.getRange("A2:A").setNumberFormat("yyyy/mm/dd hh:mm");
 
   var submission = ss.getSheetByName(SHEET_NAMES.SUBMISSION) || ss.insertSheet(SHEET_NAMES.SUBMISSION);
   submission.getRange("A1").setFormula(SUBMISSION_FORMULA);
@@ -545,7 +546,7 @@ function setupPhotoFolder() {
     return;
   }
 
-  var folder = DriveApp.createFolder("位置ログBot 写真");
+  var folder = DriveApp.createFolder("まちの記憶アーカイブ 写真");
   props.setProperty("DRIVE_FOLDER_ID", folder.getId());
   console.log("フォルダを作成しました: " + folder.getUrl());
 }
@@ -683,7 +684,7 @@ function buildLocationFlexCarousel(results) {
 
 /**
  * 登録が終わったときのカード。写真があれば一番上に出す。
- * place.answers は {1: "観光地", 2: "ぜひ"} の形、questions は getQuestions() の結果。
+ * place.answers は {1: "古い町家", 2: "とても古そう"} の形、questions は getQuestions() の結果。
  */
 function buildCompletionCard(place, questions) {
   var answerRows = questions.map(function (q, i) {
@@ -918,7 +919,7 @@ function mapHtml(focusId) {
   var script = [
     "var FOCUS_ID = " + JSON.stringify(focusId || "") + ";",
     "var COLORS = ['#d62828', '#1d4ed8', '#7e22ce', '#0f766e', '#a16207'];",
-    "var map = L.map('map').setView([34.6851, 135.8048], 13);",
+    "var map = L.map('map').setView([34.6850, 135.8350], 14);",
     "L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {",
     "  attribution: '&copy; OpenStreetMap contributors'",
     "}).addTo(map);",
@@ -1099,4 +1100,4 @@ function deleteLocationRow(locationId) {
 ```
 :::
 
-お疲れさまでした。位置ログBot の全機能が、1つの GAS プロジェクトに収まりました。
+お疲れさまでした。まちの記憶アーカイブBot の全機能が、1つの GAS プロジェクトに収まりました。

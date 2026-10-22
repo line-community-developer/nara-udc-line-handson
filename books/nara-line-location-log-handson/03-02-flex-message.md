@@ -66,7 +66,7 @@ function replyFlex(replyToken, flexMessage) {
 }
 ```
 
-検索結果1件ごとに `bubble` を1つ作っているだけです。`altText` は、通知やトーク一覧に出る文字です。カードの下の「地図で見る」ボタンは、`?view=map&id=` のあとに**その場所の ID** を付けた地図の URL を開きます。地図は全体ではなく、その場所を中心に出ます。地図そのものは [マップへ表示する](./03-04-map-display) で作るので、この章だけ進めた段階では、ボタンを押しても地図は出ません。
+検索結果1件ごとに `bubble` を1つ作っているだけです。`altText` は、通知やトーク一覧に出る文字です。カードの下の「地図で見る」ボタンは、`?view=map&id=` のあとに**その場所の ID** を付けた地図の URL を開きます。地図は全体ではなく、その場所を中心に出ます。地図そのものは [マップへ表示する](./03-04-map-display) で作るので、この章だけ進めた段階では、ボタンを押すと「スクリプト関数が見つかりません: doGet」と出ます。地図のページ（`doGet`）をまだ作っていないためで、正常です。
 
 :::message alert
 `carousel` に入れられる `bubble` は**12個まで**です。検索件数を増やすときは、12件を超えないようにしてください（Step2 のままなら5件です）。
@@ -99,7 +99,7 @@ function replyFlex(replyToken, flexMessage) {
 ```javascript:FlexMessage.gs
 /**
  * 登録が終わったときのカード。写真があれば一番上に出す。
- * place.answers は {1: "観光地", 2: "ぜひ"} の形、questions は getQuestions() の結果。
+ * place.answers は {1: "古い町家", 2: "とても古そう"} の形、questions は getQuestions() の結果。
  */
 function buildCompletionCard(place, questions) {
   var answerRows = questions.map(function (q, i) {
@@ -168,7 +168,7 @@ function buildCompletionCard(place, questions) {
 2. 位置情報を送って「この場所を登録する」を押し、全部の質問に答える
    → 「登録しました！」のカードが返ってくる（写真を送っていれば、一番上に写真が出る）
 
-   ![LINE のトーク画面。一番上にそばの写真、その下に「登録しました！ 近鉄奈良駅（近鉄）」と住所、質問と答え（カテゴリは？ レストラン／また行きたい？ ぜひ など）が並び、一番下に緑の「地図で見る」ボタンがあるカード](/images/nara-line-location-log-handson/03-02-01-register-card.png =380x)
+   ![LINE のトーク画面。一番上にそばの写真、その下に「登録しました！ 近鉄奈良駅（近鉄）」と住所、質問と答え（何がある？ 道標・石碑／どのくらい古そう？ とても古そう など）が並び、一番下に緑の「地図で見る」ボタンがあるカード](/images/nara-line-location-log-handson/03-02-01-register-card.png =380x)
 
 ## 🎖️ 早く終わった人へ
 
@@ -186,12 +186,3 @@ function buildCompletionCard(place, questions) {
        body: {
 ```
 :::
-
-### 🎖️ 挿絵として使う
-
-```
-===
-挿絵prompt
-スマホのLINEのトーク画面に、地図のピンのアイコン付きカードが3枚横並びで表示されている様子。各カードにはお店の名前・住所・距離がシンプルなアイコンとともに書かれている、フラットデザインのUIモックアップ風イラスト。
-===
-```

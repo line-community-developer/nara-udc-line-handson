@@ -7,8 +7,8 @@
 var QUESTION_HEADERS = ["質問", "選択肢1", "選択肢2", "選択肢3", "選択肢4", "選択肢5"];
 
 var SAMPLE_QUESTIONS = [
-  ["カテゴリは？", "カフェ", "レストラン", "観光地", "公園", "その他"],
-  ["また行きたい？", "ぜひ", "たぶん", "もういいかな", "", ""]
+  ["何がある？", "石仏・お地蔵さん", "道標・石碑", "古い町家", "井戸・水路", "その他"],
+  ["どのくらい古そう？", "とても古そう", "少し古そう", "わからない", "", ""]
 ];
 
 function getQuestions() {
@@ -65,6 +65,7 @@ function setupSheets() {
   var answer = ss.getSheetByName(SHEET_NAMES.ANSWER) || ss.insertSheet(SHEET_NAMES.ANSWER);
   answer.getRange("A1").setFormula(ANSWER_FORMULA);
   answer.getRange("H1").setFormula(ANSWER_ERROR_FORMULA);
+  answer.getRange("A2:A").setNumberFormat("yyyy/mm/dd hh:mm");
 
   var submission = ss.getSheetByName(SHEET_NAMES.SUBMISSION) || ss.insertSheet(SHEET_NAMES.SUBMISSION);
   submission.getRange("A1").setFormula(SUBMISSION_FORMULA);

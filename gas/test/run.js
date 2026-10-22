@@ -12,6 +12,7 @@ const MAP_URL = "https://script.google.com/macros/s/DUMMY/exec";
 // ---------- Spreadsheet モック ----------
 function makeRange(sheet, row, col, numRows, numCols) {
   const range = {
+    setNumberFormat: () => range,
     getValue: () => (sheet.rows[row - 1] || [])[col - 1],
     getValues: () => {
       const out = [];
@@ -319,8 +320,8 @@ check("setupSheets → question（サンプル2問）/ answer / submission の�
   context.setupSheets();
   eq(sheets.question.rows, [
     ["質問", "選択肢1", "選択肢2", "選択肢3", "選択肢4", "選択肢5"],
-    ["カテゴリは？", "カフェ", "レストラン", "観光地", "公園", "その他"],
-    ["また行きたい？", "ぜひ", "たぶん", "もういいかな", "", ""]
+    ["何がある？", "石仏・お地蔵さん", "道標・石碑", "古い町家", "井戸・水路", "その他"],
+    ["どのくらい古そう？", "とても古そう", "少し古そう", "わからない", "", ""]
   ]);
   assert.ok(sheets.postback, "postback も先に作る");
   eq(Object.keys(sheets.answer.formulas).sort(), ["A1", "H1"]);
@@ -338,7 +339,7 @@ check("setupSheets → question（サンプル2問）/ answer / submission の�
   context.setupSheets();
   assert.strictEqual(sheets.question.rows.length, 3);
   assert.strictEqual(sheets.question.rows[1][1], "喫茶店");
-  sheets.question.rows[1][1] = "カフェ";
+  sheets.question.rows[1][1] = "石仏・お地蔵さん";
 });
 
 let registered;
@@ -351,29 +352,29 @@ check("登録 → 問1 → 問2 → 登録しました（postback / state）", (
   eq(qrData(r0.messages[0], 2), { action: "skip_photo", locationId: loc.id });
   assert.strictEqual(stateOf().status, "waiting_photo");
   const r1 = skipPhoto(loc);
-  assert.strictEqual(r1.messages[0].text, "問1. カテゴリは？");
+  assert.strictEqual(r1.messages[0].text, "問1. 何がある？");
   eq(qr(r1.messages[0]).map((a) => [a.type, a.label, a.displayText]),
-    ["カフェ", "レストラン", "観光地", "公園", "その他"].map((c) => ["postback", c, c]));
+    ["石仏・お地蔵さん", "道標・石碑", "古い町家", "井戸・水路", "その他"].map((c) => ["postback", c, c]));
   eq(qr(r1.messages[0]).map((a) => JSON.parse(a.data)),
     [1, 2, 3, 4, 5].map((c) => ({ action: "answer", locationId: loc.id, question: 1, choice: c })));
   assert.strictEqual(stateOf().status, "answering");
   assert.strictEqual(stateOf().payload.question, 1);
 
-  const r2 = postback(qrData(r1.messages[0], 3), "公園");
-  eq(lastPostback().slice(2), [r2.id, loc.id, JSON.stringify({ action: "answer", locationId: loc.id, question: 1, choice: 4 }), "公園"]);
-  assert.strictEqual(r2.messages[0].text, "問2. また行きたい？");
-  eq(qr(r2.messages[0]).map((a) => a.label), ["ぜひ", "たぶん", "もういいかな"]);
+  const r2 = postback(qrData(r1.messages[0], 3), "井戸・水路");
+  eq(lastPostback().slice(2), [r2.id, loc.id, JSON.stringify({ action: "answer", locationId: loc.id, question: 1, choice: 4 }), "井戸・水路"]);
+  assert.strictEqual(r2.messages[0].text, "問2. どのくらい古そう？");
+  eq(qr(r2.messages[0]).map((a) => a.label), ["とても古そう", "少し古そう", "わからない"]);
   eq(qr(r2.messages[0]).map((a) => JSON.parse(a.data).choice), [1, 2, 3]);
   assert.strictEqual(stateOf().payload.question, 2);
-  eq(stateOf().payload.answers, { 1: "公園" });
+  eq(stateOf().payload.answers, { 1: "井戸・水路" });
 
-  const r3 = postback(qrData(r2.messages[0], 0), "ぜひ");
+  const r3 = postback(qrData(r2.messages[0], 0), "とても古そう");
   const card = r3.messages[0];
   assert.strictEqual(card.type, "flex");
   assert.strictEqual(card.altText, "登録しました：東京タワー");
   assert.strictEqual(card.contents.hero, undefined, "写真なしならカードに画像は出ない");
   const cardTexts = JSON.stringify(card.contents.body);
-  ["東京タワー", "東京タワーの住所", "カテゴリは？", "公園", "また行きたい？", "ぜひ"].forEach((t) => assert.ok(cardTexts.indexOf(t) >= 0, "カードに " + t));
+  ["東京タワー", "東京タワーの住所", "何がある？", "井戸・水路", "どのくらい古そう？", "とても古そう"].forEach((t) => assert.ok(cardTexts.indexOf(t) >= 0, "カードに " + t));
   eq(card.contents.footer.contents[0].action, { type: "uri", label: "地図で見る", uri: MAP_URL + "?view=map&id=" + encodeURIComponent(loc.id) });
   eq(stateRows()[0].slice(0, 3), [USER, "done", "{}"]);
   assert.strictEqual(stateRows().length, 1);
@@ -400,14 +401,14 @@ check("二度押し・古いボタン・30分超・state 無し → 再送案内
   let n = pb();
   postback({ action: "register", locationId: b.id });
   rejected({ action: "answer", locationId: b.id, question: 1, choice: 1 }, undefined, "写真を飛ばして回答");
-  assert.strictEqual(skipPhoto(b).messages[0].text, "問1. カテゴリは？");
+  assert.strictEqual(skipPhoto(b).messages[0].text, "問1. 何がある？");
   rejected({ action: "skip_photo", locationId: b.id }, undefined, "スキップの二度押し");
   n = pb();
   postback({ action: "answer", locationId: b.id, question: 1, choice: 1 });
   assert.strictEqual(pb(), n + 1, "受け付けた回答は postback に残る");
   rejected({ action: "answer", locationId: b.id, question: 1, choice: 2 }, undefined, "同じ問の二度押し");
   rejected({ action: "search", locationId: b.id }, undefined, "回答中に検索ボタン");
-  eq(stateOf().payload.answers, { 1: "カフェ" }, "二度押しは state に入らない");
+  eq(stateOf().payload.answers, { 1: "石仏・お地蔵さん" }, "二度押しは state に入らない");
 
   stateRows()[0][3] = new Date(Date.now() - 31 * 60 * 1000);
   rejected({ action: "answer", locationId: b.id, question: 2, choice: 1 }, undefined, "30分超");
@@ -444,32 +445,32 @@ check("fakeSubmission（パターン B）: 全問答えた場所だけ / 途中�
   postback({ action: "answer", locationId: mid.id, question: 1, choice: 2 });
   location("次の場所", 35.61, 139.61); // ここで会話が切り替わる
   const sub = fakeSubmission();
-  eq(sheets.submission.rows[0], ["場所のID", "タイトル", "住所", "緯度", "経度", "カテゴリは？", "また行きたい？"]);
+  eq(sheets.submission.rows[0], ["場所のID", "タイトル", "住所", "緯度", "経度", "何がある？", "どのくらい古そう？"]);
   assert.ok(sub.some((r) => r[0] === registered), "全問答えた場所は出る");
   assert.ok(!sub.some((r) => r[0] === mid.id), "途中でやめた場所は出ない");
-  eq(sub.find((r) => r[0] === registered), [registered, "東京タワー", "東京タワーの住所", 35.6586, 139.7454, "公園", "ぜひ"]);
+  eq(sub.find((r) => r[0] === registered), [registered, "東京タワー", "東京タワーの住所", 35.6586, 139.7454, "井戸・水路", "とても古そう"]);
   // 季節テストの場所は、問3を消したあとも問1・問2に答えているので出る
   assert.strictEqual(sub.length, 2);
   // 同じ場所・同じ問に回答が2つあれば新しい方（Bot は二度押しを断るので、手で足したときだけ起きる）
   sheets.postback.rows.push([new Date(), USER, "manual", registered, JSON.stringify({ action: "answer", locationId: registered, question: 1, choice: 1 }), ""]);
   try {
-    eq(fakeSubmission().find((r) => r[0] === registered).slice(5), ["カフェ", "ぜひ"]);
+    eq(fakeSubmission().find((r) => r[0] === registered).slice(5), ["石仏・お地蔵さん", "とても古そう"]);
   } finally {
     sheets.postback.rows.pop();
   }
-  eq(fakeSubmission().find((r) => r[0] === registered).slice(5), ["公園", "ぜひ"]);
+  eq(fakeSubmission().find((r) => r[0] === registered).slice(5), ["井戸・水路", "とても古そう"]);
 });
 
 check("質問を後から足すと、過去の登録は submission からいったん消える", () => {
   const before = fakeSubmission().length;
-  sheets.question.rows.push(["誰と行った？", "ひとり", "友だち", "家族", "", ""]);
+  sheets.question.rows.push(["見つけたきっかけは？", "散歩中", "通勤・通学中", "人に教わった", "", ""]);
   try {
     const sub = fakeSubmission();
-    eq(sheets.submission.rows[0].slice(5), ["カテゴリは？", "また行きたい？", "誰と行った？"]);
+    eq(sheets.submission.rows[0].slice(5), ["何がある？", "どのくらい古そう？", "見つけたきっかけは？"]);
     assert.ok(!sub.some((r) => r[0] === registered), "問3に答えていない登録は消える");
-    // 季節テストは、前に消した問3「どの季節？」への回答（選択番号2）が「友だち」に読み替わって残る
+    // 季節テストは、前に消した問3「どの季節？」への回答（選択番号2）が「通勤・通学中」に読み替わって残る
     // ＝「question の行を入れ替えると過去の回答がずれる」制約そのもの
-    eq(sub.map((r) => [r[1], r[7]]), [["季節テスト", "友だち"]]);
+    eq(sub.map((r) => [r[1], r[7]]), [["季節テスト", "通勤・通学中"]]);
   } finally {
     sheets.question.rows.pop();
   }
@@ -538,8 +539,8 @@ check("マップ → URL / doGet は submission の場所だけ", () => {
   const json = data.locations;
   eq(json.map((l) => [l.title, l.address, l.latitude, l.longitude]), fakeSubmission().map((s) => [s[1], s[2], s[3], s[4]]));
   assert.ok(json.length < rows("location").length, "検索用・途中の場所は出ない");
-  eq(json[0].answers.map((a) => a.question), ["カテゴリは？", "また行きたい？"]);
-  eq(data.categories, ["カフェ", "レストラン", "観光地", "公園", "その他"]);
+  eq(json[0].answers.map((a) => a.question), ["何がある？", "どのくらい古そう？"]);
+  eq(data.categories, ["石仏・お地蔵さん", "道標・石碑", "古い町家", "井戸・水路", "その他"]);
   eq(data.official.length, 6);
   assert.strictEqual(data.official[0].title, "東大寺");
   const page = context.doGet({ parameter: { view: "map" } });
@@ -571,7 +572,7 @@ check("写真 → 登録中の場所に紐づけて問1へ / スキップしな�
   const loc = location("写真つき", 34.69, 135.83);
   postback({ action: "register", locationId: loc.id }, "この場所を登録する");
   const r = post({ type: "message", message: { type: "image", id: "IMG200", contentProvider: { type: "line" } } });
-  assert.strictEqual(r.messages[0].text, "写真を保存しました！\n問1. カテゴリは？");
+  assert.strictEqual(r.messages[0].text, "写真を保存しました！\n問1. 何がある？");
   eq(qr(r.messages[0]).map((a) => JSON.parse(a.data).locationId), [loc.id, loc.id, loc.id, loc.id, loc.id]);
   assert.strictEqual(stateOf().status, "answering");
   const file = driveFiles.length;
@@ -579,8 +580,8 @@ check("写真 → 登録中の場所に紐づけて問1へ / スキップしな�
   assert.strictEqual(stateOf().payload.photoUrl, photoUrl);
   assert.strictEqual(rows("location").find((x) => x[2] === loc.id)[7], photoUrl);
   assert.ok(sharings.some((x) => x[0] === "FILE" + file && x[1] === "ANYONE_WITH_LINK" && x[2] === "VIEW"), "リンクを知っている人は見られる");
-  const done = postback({ action: "answer", locationId: loc.id, question: 1, choice: 3 }, "観光地");
-  const last = postback({ action: "answer", locationId: loc.id, question: 2, choice: 1 }, "ぜひ");
+  const done = postback({ action: "answer", locationId: loc.id, question: 1, choice: 3 }, "古い町家");
+  const last = postback({ action: "answer", locationId: loc.id, question: 2, choice: 1 }, "とても古そう");
   assert.strictEqual(last.messages[0].contents.hero.url, photoUrl);
   assert.strictEqual(last.messages[0].contents.hero.type, "image");
 });

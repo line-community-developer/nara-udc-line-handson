@@ -5,7 +5,7 @@ function setupPhotoFolder() {
     return;
   }
 
-  var folder = DriveApp.createFolder("位置ログBot 写真");
+  var folder = DriveApp.createFolder("まちの記憶アーカイブ 写真");
   props.setProperty("DRIVE_FOLDER_ID", folder.getId());
   console.log("フォルダを作成しました: " + folder.getUrl());
 }

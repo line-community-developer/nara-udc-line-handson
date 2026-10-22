@@ -1,5 +1,5 @@
 /**
- * LINE位置ログBot
+ * まちの記憶アーカイブBot
  * 位置情報は location、ボタンは postback にそのまま残す。
  * 「いま何問目を待っているか」は state にユーザー1人1行で覚える。
  * 質問（question）に全部答えた場所が、数式で submission に並ぶ。

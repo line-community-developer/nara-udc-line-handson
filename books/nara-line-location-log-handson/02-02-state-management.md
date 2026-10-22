@@ -5,9 +5,9 @@ title: "🧭 会話の「状態」を管理する"
 前の章の Bot は、1回聞かれて1回返したら終わりでした。ここからは**何往復かする会話**を作ります。
 
 - 位置情報を送る →「登録する？検索する？」と聞かれる → 選ぶ
-- 登録を選ぶ →「カテゴリは？」→ 選ぶ →「また行きたい？」→ 選ぶ → 登録完了
+- 登録を選ぶ →「何がある？」→ 選ぶ →「どのくらい古そう？」→ 選ぶ → 登録完了
 
-LINE からは、メッセージやボタンが1つずつバラバラに届きます。「カフェ」のボタンが押されたとき、Bot はそれが**どの場所の・何問目への答えか**を覚えていないと続きを返せません。これが状態管理です。この章では、その覚え方を作ります。
+LINE からは、メッセージやボタンが1つずつバラバラに届きます。「石仏・お地蔵さん」のボタンが押されたとき、Bot はそれが**どの場所の・何問目への答えか**を覚えていないと続きを返せません。これが状態管理です。この章では、その覚え方を作ります。
 
 ## 1人1行のメモ
 
@@ -111,8 +111,8 @@ LINE を通さずに、エディタから `setState` を動かしてみます。
 
 ```javascript:State.gs
 function testSetState() {
-  setState("test-user-001", "pending_choice", { title: "東京タワー", latitude: 35.6586, longitude: 139.7454 });
-  setState("test-user-001", "answering", { title: "東京タワー", question: 1 });
+  setState("test-user-001", "pending_choice", { title: "近鉄奈良駅", latitude: 34.6844, longitude: 135.8279 });
+  setState("test-user-001", "answering", { title: "近鉄奈良駅", question: 1 });
   console.log(JSON.stringify(getState("test-user-001"), null, 2));
 }
 ```

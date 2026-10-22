@@ -16,12 +16,12 @@ sequenceDiagram
     GAS->>You: 「登録する？検索する？」
 
     You->>GAS: この場所を登録する
-    Note over GAS: state = answering（問1）
-    GAS->>You: 問1. カテゴリは？
-    You->>GAS: カフェ
+    Note over GAS: postback に1行<br/>state = answering（問1）
+    GAS->>You: 問1. 何がある？
+    You->>GAS: 石仏・お地蔵さん
     Note over GAS: postback に1行<br/>state = answering（問2）
-    GAS->>You: 問2. また行きたい？
-    You->>GAS: ぜひ
+    GAS->>You: 問2. どのくらい古そう？
+    You->>GAS: とても古そう
     Note over GAS: postback に1行<br/>state = done
     GAS->>You: 登録しました！
 
@@ -127,8 +127,8 @@ function buildChoiceQuickReply(locationId) {
 ```javascript:Question.gs
 function getQuestions() {
   return [
-    { text: "カテゴリは？", choices: ["カフェ", "レストラン", "観光地", "公園", "その他"] },
-    { text: "また行きたい？", choices: ["ぜひ", "たぶん", "もういいかな"] }
+    { text: "何がある？", choices: ["石仏・お地蔵さん", "道標・石碑", "古い町家", "井戸・水路", "その他"] },
+    { text: "どのくらい古そう？", choices: ["とても古そう", "少し古そう", "わからない"] }
   ];
 }
 
@@ -156,7 +156,7 @@ function askQuestion(replyToken, locationId, n) {
 }
 ```
 
-`getQuestions` は、いまは決まった2問を返すだけです。次の章で、ここをスプレッドシートから読む形に差し替えます。
+`getQuestions` は、いまは決まった2問を返すだけです。次の章で、ここをスプレッドシートから読む形に差し替えます。「質問が見つかりません」の文に出てくる `question` シートと `setupSheets` も、次の章で作ります。この章のままなら、この返事は出ません。
 
 `askQuestion` は問 n の質問文と、選択肢のボタンを送ります。ボタンの `data` には問番号（`question`）と、何番目の選択肢か（`choice`）を入れます。空の選択肢はボタンにしませんが、番号は詰めません。ボタンのラベルは20文字までしか表示できないので、`slice(0, 20)` で切ります。押したときにトークに出る文字（`displayText`）は全文のままです。
 
@@ -238,19 +238,21 @@ function savePostback(userId, messageId, locationId, data, displayText) {
    ![LINE のトーク画面。「受け取った位置情報」の返事の下に、「この場所を登録する」「近くを検索する」の2つのボタンが出ている](/images/nara-line-location-log-handson/02-03-03-choice-buttons.png =380x)
 
 2. 「この場所を登録する」を押す
-   → 「問1. カテゴリは？」と選択肢のボタンが出る
+   → 「問1. 何がある？」と選択肢のボタンが出る
 3. 選択肢を選ぶ
-   → 「問2. また行きたい？」が出る
+   → 「問2. どのくらい古そう？」が出る
 4. 選択肢を選ぶ
-   → 「登録しました！」のあとに「カテゴリは？ カフェ」のような行が2行返ってくる
+   → 「登録しました！」のあとに「何がある？ 石仏・お地蔵さん」のような行が2行返ってくる
 
-   ![LINE のトーク画面。「この場所を登録する」→「問1. カテゴリは？」→「観光地」→「問2. また行きたい？」→「ぜひ」と進み、最後に「登録しました！ カテゴリは？ 観光地 また行きたい？ ぜひ」と返っている](/images/nara-line-location-log-handson/02-03-04-register-flow.png =380x)
+   ![LINE のトーク画面。「この場所を登録する」→「問1. 何がある？」→「古い町家」→「問2. どのくらい古そう？」→「とても古そう」と進み、最後に「登録しました！ 何がある？ 古い町家 どのくらい古そう？ とても古そう」と返っている](/images/nara-line-location-log-handson/02-03-04-register-flow.png =380x)
 
-`postback` シートに `"action":"answer"` の行が2つ（問1と問2）増え、`state` シートの自分の行の `status` が `done` になっていれば成功です。
+`postback` シートに「登録する」の行（`"action":"register"`）が1つと、`"action":"answer"` の行が2つ（問1と問2）増え、`state` シートの自分の行の `status` が `done` になっていれば成功です。
 
 ![postback シート。「登録する」の行（action が register）が1行、回答の行（action が answer、question が 1 と 2）が2行並んでいる](/images/nara-line-location-log-handson/02-03-01-postback-sheet.png)
 
 ![state シート。自分の行が1行だけあり、status が done、payload が {} になっている](/images/nara-line-location-log-handson/02-03-02-state-sheet.png)
+
+`postback` シートの「表示テキスト」列は空のままです。LINE の postback イベントには、押したときにトークに出た文字（`displayText`）が入ってこないためで、故障ではありません。押したボタンの中身は「データ」列で分かります。
 
 この時点では、登録は `postback` の行として残っているだけです。場所と回答を1行にまとめた表は、次の章で作ります。
 

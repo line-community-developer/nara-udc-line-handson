@@ -74,7 +74,7 @@ function mapHtml(focusId) {
   var script = [
     "var FOCUS_ID = " + JSON.stringify(focusId || "") + ";",
     "var COLORS = ['#d62828', '#1d4ed8', '#7e22ce', '#0f766e', '#a16207'];",
-    "var map = L.map('map').setView([34.6851, 135.8048], 13);",
+    "var map = L.map('map').setView([34.6850, 135.8350], 14);",
     "L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {",
     "  attribution: '&copy; OpenStreetMap contributors'",
     "}).addTo(map);",

@@ -13,9 +13,9 @@ sequenceDiagram
     GAS->>You: 「登録する／検索する」を聞く
     alt 登録する
         You->>GAS: この場所を登録する
-        GAS->>You: 問1. カテゴリは？
+        GAS->>You: 問1. 何がある？
         You->>GAS: 選択肢を選ぶ
-        GAS->>You: 問2. また行きたい？
+        GAS->>You: 問2. どのくらい古そう？
         You->>GAS: 選択肢を選ぶ
         GAS->>You: 登録しました！
     else 検索する

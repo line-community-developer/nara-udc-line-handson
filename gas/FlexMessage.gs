@@ -32,7 +32,7 @@ function buildLocationFlexCarousel(results) {
 
 /**
  * 登録が終わったときのカード。写真があれば一番上に出す。
- * place.answers は {1: "観光地", 2: "ぜひ"} の形、questions は getQuestions() の結果。
+ * place.answers は {1: "古い町家", 2: "とても古そう"} の形、questions は getQuestions() の結果。
  */
 function buildCompletionCard(place, questions) {
   var answerRows = questions.map(function (q, i) {

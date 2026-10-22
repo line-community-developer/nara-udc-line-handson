@@ -54,8 +54,8 @@ flowchart LR
 var QUESTION_HEADERS = ["質問", "選択肢1", "選択肢2", "選択肢3", "選択肢4", "選択肢5"];
 
 var SAMPLE_QUESTIONS = [
-  ["カテゴリは？", "カフェ", "レストラン", "観光地", "公園", "その他"],
-  ["また行きたい？", "ぜひ", "たぶん", "もういいかな", "", ""]
+  ["何がある？", "石仏・お地蔵さん", "道標・石碑", "古い町家", "井戸・水路", "その他"],
+  ["どのくらい古そう？", "とても古そう", "少し古そう", "わからない", "", ""]
 ];
 
 function getQuestions() {
@@ -99,6 +99,7 @@ function setupSheets() {
   var answer = ss.getSheetByName(SHEET_NAMES.ANSWER) || ss.insertSheet(SHEET_NAMES.ANSWER);
   answer.getRange("A1").setFormula(ANSWER_FORMULA);
   answer.getRange("H1").setFormula(ANSWER_ERROR_FORMULA);
+  answer.getRange("A2:A").setNumberFormat("yyyy/mm/dd hh:mm");
 
   var submission = ss.getSheetByName(SHEET_NAMES.SUBMISSION) || ss.insertSheet(SHEET_NAMES.SUBMISSION);
   submission.getRange("A1").setFormula(SUBMISSION_FORMULA);
@@ -107,7 +108,7 @@ function setupSheets() {
 }
 ```
 
-`question` は、まだ無いときだけサンプルの2問で作ります。何度実行しても、自分で編集した質問は上書きしません。`answer` と `submission` は、A1（`answer` は H1 も）に数式を1つ入れるだけです。数式が下と右に結果を広げてくれます。
+`question` は、まだ無いときだけサンプルの2問で作ります。何度実行しても、自分で編集した質問は上書きしません。`answer` と `submission` は、A1（`answer` は H1 も）に数式を1つ入れるだけです。数式が下と右に結果を広げてくれます。`answer` の A 列（送信日時）は、数式の結果のままだと `46296.41667` のような数字で出るので、`setNumberFormat` で日時の表示にしています。
 
 数式そのものは長いので畳んであります。開いて、3行まとめて `Question.gs` の一番下に貼り付けます。
 
@@ -151,9 +152,7 @@ var SUBMISSION_FORMULA = '=ARRAYFORMULA(LET(qs,FILTER(question!A2:A,question!A2:
 
 `submission` シートを開くと、前の章で最後まで答えた場所が1行ずつ並んでいます。右側の列の見出しは `question` の質問文、中身は選んだ回答です。
 
-![submission シート。場所のID・タイトル・住所・緯度・経度のあとに「カテゴリは？」「また行きたい？」の列があり、登録した場所が「レストラン」「ぜひ」の回答付きで1行出ている](/images/nara-line-location-log-handson/02-03b-04-submission-sheet.png)
-
-`answer` シートの送信日時は、`46296.41667` のような数字で表示されます。**壊れているのではありません。** 日時を数字で持っているだけで、列を選んで「表示形式」→「数字」→「日時」にすれば読めます。
+![submission シート。場所のID・タイトル・住所・緯度・経度のあとに「何がある？」「どのくらい古そう？」の列があり、登録した場所が「道標・石碑」「とても古そう」の回答付きで1行出ている](/images/nara-line-location-log-handson/02-03b-04-submission-sheet.png)
 
 まだ全問答えた場所が無いと、`submission` には「（全問に答えた場所はまだありません）」とだけ出ます。
 
@@ -177,8 +176,8 @@ var SUBMISSION_FORMULA = '=ARRAYFORMULA(LET(qs,FILTER(question!A2:A,question!A2:
 
 1. `setupSheets` を実行する
    → 前の章で登録した場所が `submission` に1行出る
-2. `question` シートの4行目（一番下の次の行）に、質問を1つ足す（例: A列「誰と行った？」、B〜D列「ひとり」「友達」「家族」）
-   → `submission` に「誰と行った？」の列が増え、これまでの登録がいったん消える
+2. `question` シートの4行目（一番下の次の行）に、質問を1つ足す（例: A列「見つけたきっかけは？」、B〜D列「散歩中」「通勤・通学中」「人に教わった」）
+   → `submission` に「見つけたきっかけは？」の列が増え、これまでの登録がいったん消える
 3. LINE で位置情報を送り、「この場所を登録する」を押す
    → 問1〜問3の3問を聞かれ、「登録しました！」のあとに3行返ってくる
 4. `submission` を見る
@@ -191,5 +190,5 @@ var SUBMISSION_FORMULA = '=ARRAYFORMULA(LET(qs,FILTER(question!A2:A,question!A2:
 ### 🎖️ 長い選択肢を試す
 
 :::details 試し方
-`question` の選択肢に、20文字より長い文字（例: 「駅から歩いて10分以内のとても静かなお店」）を入れてから登録します。ボタンのラベルは途中で切れ、押したあとのトークと `answer` の「選んだ文字」は全文になっていれば成功です。
+`question` の選択肢に、20文字より長い文字（例: 「路地の奥にひっそり残る、格子戸のある古い町家」）を入れてから登録します。ボタンのラベルは途中で切れ、押したあとのトークと `answer` の「選んだ文字」は全文になっていれば成功です。
 :::
